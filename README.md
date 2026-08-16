@@ -65,7 +65,10 @@ From the same survey:
 
 ## Architecture
 
+> Detailed C4 Model & Developer Extension Guide: [architecture.md](architecture.md)
+
 ### Core principle: rule engine decides, LLM explains
+
 
 ```text
 HouseholdProfile → screen_household() → [RuleResult, ...]

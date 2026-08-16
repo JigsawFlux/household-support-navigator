@@ -11,7 +11,7 @@ class _FakeLLM:
     def __init__(self, content: str):
         self._content = content
 
-    def invoke(self, _messages):
+    def invoke(self, _messages, config=None):
         return _Resp(self._content)
 
 
