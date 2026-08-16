@@ -1,0 +1,40 @@
+[
+  {
+    "run_id": "595400f8-6f58-4744-9792-3390fbeeed11",
+    "started_at": 1786915110.593795,
+    "ended_at": 1786915128.6911302,
+    "latency_seconds": 18.09733510017395,
+    "entitlement_counts": {
+      "Pension Credit": 1,
+      "Council Tax Reduction": 1,
+      "Warm Home Discount": 1,
+      "Healthy Start": 1,
+      "Household Support Fund": 1
+    },
+    "eligible_count": 3,
+    "ineligible_count": 2,
+    "escalated": false,
+    "escalation_reasons": [],
+    "llm_calls": 1,
+    "llm_errors": 0
+  },
+  {
+    "run_id": "a3bd3a68-9e42-430a-b250-611d731897fc",
+    "started_at": 1786915128.6927419,
+    "ended_at": 1786915146.760684,
+    "latency_seconds": 18.067942142486572,
+    "entitlement_counts": {
+      "Pension Credit": 1,
+      "Council Tax Reduction": 1,
+      "Warm Home Discount": 1,
+      "Healthy Start": 1,
+      "Household Support Fund": 1
+    },
+    "eligible_count": 3,
+    "ineligible_count": 2,
+    "escalated": false,
+    "escalation_reasons": [],
+    "llm_calls": 1,
+    "llm_errors": 0
+  }
+]

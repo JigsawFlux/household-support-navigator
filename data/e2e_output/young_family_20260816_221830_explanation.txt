@@ -1,0 +1,57 @@
+Here is a plain-English summary of your entitlement check results. These results were produced by an automated rule engine — please read the confidence notes carefully and follow up on the official sites where indicated.
+
+---
+
+**PENSION CREDIT — Not eligible**
+
+Based on the information provided, you do not currently qualify for Pension Credit. This is because Pension Credit is only available to people who have reached State Pension age, which is currently 66, and the check indicates you are below that age. This result is assessed with high confidence. It may be worth keeping this in mind for the future, as your circumstances will change when you reach 66. You can read more at: https://www.gov.uk/pension-credit/eligibility
+
+---
+
+**COUNCIL TAX REDUCTION — Likely eligible**
+
+Good news — based on your household income of £18,000, you appear to fall within the threshold that many councils use for Council Tax Reduction. This could mean a reduction in your Council Tax bill, though the exact amount will depend on your local council's own scheme, which can vary. This result is assessed with medium confidence, so it is worth applying and letting your council confirm the exact reduction. To apply or check further, visit: https://www.gov.uk/apply-council-tax-reduction
+
+To apply, you will typically need:
+- Your Council Tax bill
+- Proof of income (for example, payslips, benefit letters, or pension statements)
+- Proof of savings or capital
+
+---
+
+**WARM HOME DISCOUNT — Likely eligible**
+
+Because your household receives a qualifying means-tested benefit, you are likely to be eligible for the Warm Home Discount. This is a one-off rebate applied directly to your electricity bill, usually worth £150. In many cases this is applied automatically, but it is worth checking with your energy supplier to make sure they are participating in the scheme and that they have your details. This result is assessed with medium confidence. Find out more at: https://www.gov.uk/the-warm-home-discount-scheme
+
+You may need:
+- Your energy supplier account reference number
+- Proof of your qualifying benefit, if your supplier asks for it
+
+---
+
+**HEALTHY START — Likely eligible**
+
+If you are pregnant or have a child under 4 and receive a qualifying benefit, you are likely eligible for the Healthy Start scheme. This provides prepaid cards to help with the cost of milk, fruit, vegetables, and vitamins. This result is assessed with medium confidence, so we would encourage you to confirm your eligibility directly on the official site. Apply or check at: https://www.healthystart.nhs.uk/
+
+You will typically need:
+- Your NHS number
+- Proof of your qualifying benefit
+- Proof of pregnancy, if you are applying on that basis
+
+---
+
+**HOUSEHOLD SUPPORT FUND — Needs further checking**
+
+The Household Support Fund is managed locally by individual councils, and what is available — and who qualifies — varies significantly from area to area. This check is not able to confirm eligibility, and the confidence level is marked as needs review. We would strongly encourage you to visit your local council's page directly to see what grants or support may currently be available to you. The link provided points to a local council page: https://www.manchester.gov.uk/householdsupportfund
+
+Requirements vary by council, so check their page for what you may need to provide.
+
+---
+
+**A note on free advice**
+
+For any of the results marked as medium confidence or needs review, or if you would like help understanding your options, you can get free, impartial guidance from:
+- **Citizens Advice** — citizensadvice.org.uk
+- **MoneyHelper** — moneyhelper.org.uk
+
+Neither this tool nor these results constitute financial, legal, or tax advice.

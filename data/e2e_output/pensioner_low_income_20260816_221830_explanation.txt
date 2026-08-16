@@ -1,0 +1,76 @@
+## Your Benefits Check Results
+
+Here is a plain-English summary of what the eligibility checker found for your household. Please read each section carefully, and note that these results are based on the information provided — they are not a final decision by any government body.
+
+---
+
+### ✅ Pension Credit — Likely Eligible
+
+Based on your household income of £10,500, which is at or below the Pension Credit guarantee threshold, the checker indicates you are likely eligible for Pension Credit. This is a top-up benefit designed to bring your weekly income up to a minimum level, and it can also open the door to other help such as free TV licences and housing benefit.
+
+Please bear in mind this result is rated **medium confidence**, so it is worth confirming your eligibility on the official site before applying.
+
+**Documents you will typically need:**
+- Pension statements or other proof of income
+- Your National Insurance number
+- Bank details (for the claim form — these are not stored by this tool)
+
+🔗 Official information and how to apply: https://www.gov.uk/pension-credit/eligibility
+
+---
+
+### ✅ Council Tax Reduction — Likely Eligible
+
+Your household income appears to fall within the range that could qualify you for a reduction on your Council Tax bill. This is **medium confidence**, and it is important to know that the exact amount of any reduction depends entirely on your local council's own scheme — so the final figure could vary.
+
+**Documents you will typically need:**
+- Your Council Tax bill
+- Proof of income
+- Proof of savings
+
+🔗 Official information and how to apply: https://www.gov.uk/apply-council-tax-reduction
+
+---
+
+### ✅ Warm Home Discount — Likely Eligible
+
+Because your household appears to receive a qualifying means-tested benefit, you may be automatically eligible for the Warm Home Discount. This is a one-off annual rebate applied directly to your electricity bill. In many cases this is applied automatically, but it is worth checking with your energy supplier to make sure.
+
+This result is rated **medium confidence**.
+
+**Documents you may need:**
+- Your energy supplier account reference number
+- Proof of your qualifying benefit (if your supplier asks for it)
+
+🔗 Official information: https://www.gov.uk/the-warm-home-discount-scheme
+
+---
+
+### ❌ Healthy Start — Not Eligible
+
+The checker has determined that your household does not appear to meet the criteria for Healthy Start, as this scheme is specifically for people who are pregnant or have a child under the age of four, and this was not indicated for your household. No action is needed here.
+
+🔗 For reference: https://www.healthystart.nhs.uk/
+
+---
+
+### ⚠️ Household Support Fund — Needs Review
+
+The Household Support Fund is run differently by every local council, and the checker is not able to confirm eligibility for this one. This is flagged as **needs review**. It is well worth checking directly with your local council, as grants and support available through this fund can change regularly and may be able to help with food, energy, or other essential costs.
+
+**What to do next:**
+- Visit your local council's website to see what is currently available in your area
+- Requirements and application processes vary, so check locally for what documents may be needed
+
+🔗 Find help in your area: https://www.gov.uk/cost-of-living/find-help-in-your-area
+
+---
+
+## A Note on Next Steps
+
+If you are unsure about any of these results or would like free, impartial guidance, you can contact:
+
+- **Citizens Advice** — citizensadvice.org.uk
+- **MoneyHelper** — moneyhelper.org.uk
+
+Neither this tool nor these results constitute financial, legal, or tax advice.

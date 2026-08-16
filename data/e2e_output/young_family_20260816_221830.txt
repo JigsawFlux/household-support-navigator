@@ -1,0 +1,27 @@
+Household Support Navigator — Your Checklist
+============================================
+
+✅ You may qualify: Council Tax Reduction
+  Why: Household income (£18,000) is at or below the illustrative Council Tax Reduction threshold (£24,000) for this household size. Exact reduction amount depends on your council's scheme.
+  Confidence: medium
+  More info: https://www.gov.uk/apply-council-tax-reduction
+
+✅ You may qualify: Healthy Start
+  Why: Household reports a qualifying benefit and a pregnancy or child under 4 — you are likely eligible. Confirm exact eligibility on the official site.
+  Confidence: medium
+  More info: https://www.healthystart.nhs.uk/
+
+✅ You may qualify: Warm Home Discount
+  Why: Household reports a qualifying means-tested benefit, which typically triggers automatic eligibility for the Warm Home Discount rebate.
+  Confidence: medium
+  More info: https://www.gov.uk/the-warm-home-discount-scheme
+
+ℹ️ Check locally: Household Support Fund
+  Why: Household Support Fund schemes are run locally and vary by council. This is a signpost to check current local eligibility and available grants — it is not a guaranteed entitlement.
+  Confidence: needs_review
+  More info: https://www.manchester.gov.uk/householdsupportfund
+
+❌ Likely not eligible: Pension Credit
+  Why: Applicant is below State Pension age (66).
+  Confidence: high
+  More info: https://www.gov.uk/pension-credit/eligibility
