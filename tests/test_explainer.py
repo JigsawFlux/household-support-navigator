@@ -15,6 +15,19 @@ class _FakeLLM:
         return _Resp(self._content)
 
 
+class _MultiPartResp:
+    def __init__(self, blocks):
+        self.content = blocks
+
+
+class _MultiPartLLM:
+    def __init__(self, blocks):
+        self._blocks = blocks
+
+    def invoke(self, _messages, config=None):
+        return _MultiPartResp(self._blocks)
+
+
 def _sample_results():
     return [
         RuleResult(
@@ -63,3 +76,21 @@ def test_explain_results_falls_back_on_empty_llm_response(monkeypatch):
     monkeypatch.setattr(explainer, "get_llm", lambda temperature=0.0: _FakeLLM("   "))
     output = explainer.explain_results(_sample_results())
     assert "Pension Credit" in output
+
+
+def test_explain_results_handles_multipart_content_blocks(monkeypatch):
+    blocks = [{"type": "text", "text": "Pension Credit: you may qualify..."}]
+    monkeypatch.setattr(explainer, "get_llm", lambda temperature=0.0: _MultiPartLLM(blocks))
+    output = explainer.explain_results(_sample_results())
+    assert "Pension Credit" in output
+    assert "[{" not in output  # not a raw repr of the list
+
+
+def test_explain_results_logs_exception_with_traceback(monkeypatch, caplog):
+    def _raise(*_args, **_kwargs):
+        raise RuntimeError("LLM unavailable")
+
+    monkeypatch.setattr(explainer, "get_llm", _raise)
+    with caplog.at_level("WARNING"):
+        explainer.explain_results(_sample_results())
+    assert "LLM call failed" in caplog.text

@@ -1,21 +1,21 @@
 # src/renderer.py
 """
 HSN-050: Prioritized checklist renderer.
-
-Renders rule engine results + explanations + escalation info into a
-consistent output structure across CLI and static HTML, in priority order:
-eligible-high-confidence first, then eligible-lower-confidence, then
-escalation notice, then ineligible (for transparency).
 """
+from __future__ import annotations
+
+import html
 from dataclasses import dataclass
+from urllib.parse import urlparse
 
 from src.rules.base import RuleResult
 from src.escalation import EscalationReason, render_escalation_message
 
 _CONFIDENCE_ORDER = {"high": 0, "medium": 1, "low": 2, "needs_review": 3}
+_ALLOWED_SCHEMES = {"http", "https"}
 
 
-@dataclass
+@dataclass(frozen=True)
 class ChecklistItem:
     entitlement: str
     status_label: str
@@ -25,7 +25,7 @@ class ChecklistItem:
 
 
 def _sort_key(result: RuleResult):
-    eligible_rank = 0 if result.eligible else 1
+    eligible_rank = 0 if result.eligible or result.signpost_only else 1
     confidence_rank = _CONFIDENCE_ORDER.get(result.confidence, 99)
     return (eligible_rank, confidence_rank, result.entitlement)
 
@@ -34,7 +34,10 @@ def build_checklist(results: list[RuleResult]) -> list[ChecklistItem]:
     ordered = sorted(results, key=_sort_key)
     items = []
     for r in ordered:
-        status_label = "✅ You may qualify" if r.eligible else "❌ Likely not eligible"
+        if r.signpost_only:
+            status_label = "ℹ️ Check locally"
+        else:
+            status_label = "✅ You may qualify" if r.eligible else "❌ Likely not eligible"
         items.append(
             ChecklistItem(
                 entitlement=r.entitlement,
@@ -70,6 +73,16 @@ def render_cli(
     return "\n".join(lines)
 
 
+def _safe_url(url: str) -> str:
+    try:
+        parsed = urlparse(url)
+    except ValueError:
+        return "#"
+    if parsed.scheme not in _ALLOWED_SCHEMES:
+        return "#"
+    return html.escape(url, quote=True)
+
+
 def render_html(
     checklist: list[ChecklistItem],
     escalation_reasons: list[EscalationReason] | None = None,
@@ -78,18 +91,19 @@ def render_html(
     for item in checklist:
         rows.append(
             "<tr>"
-            f"<td>{item.status_label}</td>"
-            f"<td>{item.entitlement}</td>"
-            f"<td>{item.reason}</td>"
-            f"<td>{item.confidence}</td>"
-            f'<td><a href="{item.source_url}" target="_blank" rel="noopener">Official source</a></td>'
+            f"<td>{html.escape(item.status_label)}</td>"
+            f"<td>{html.escape(item.entitlement)}</td>"
+            f"<td>{html.escape(item.reason)}</td>"
+            f"<td>{html.escape(item.confidence)}</td>"
+            f'<td><a href="{_safe_url(item.source_url)}" target="_blank" rel="noopener">Official source</a></td>'
             "</tr>"
         )
 
     escalation_reasons = escalation_reasons or []
     escalation_text = render_escalation_message(escalation_reasons)
     escalation_html = (
-        f"<div class='escalation'><pre>{escalation_text}</pre></div>" if escalation_text else ""
+        f"<div class='escalation'><pre>{html.escape(escalation_text)}</pre></div>"
+        if escalation_text else ""
     )
 
     return f"""<!DOCTYPE html>

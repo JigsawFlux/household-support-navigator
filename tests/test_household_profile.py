@@ -52,8 +52,8 @@ def test_healthy_start_requires_benefit():
     assert result.eligible is False
 
 
-def test_healthy_start_eligible_with_benefit_and_household():
-    result = check_healthy_start(_profile(existing_benefits=["universal_credit"], household_size=3))
+def test_healthy_start_eligible_with_benefit_and_flag():
+    result = check_healthy_start(_profile(existing_benefits=["universal_credit"], is_pregnant_or_young_child=True))
     assert result.eligible is True
 
 

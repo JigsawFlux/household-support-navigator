@@ -7,10 +7,13 @@ by the deterministic rule engine (src/rules/engine.py). It must never invent
 or override an eligibility decision — every explanation is grounded in the
 rule's `reason` and `source_url`.
 """
+from __future__ import annotations
+
 import logging
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from shared.llm import get_llm
+from shared.telemetry import TelemetryCallback, RunTelemetry
 from src.rules.base import RuleResult
 
 logger = logging.getLogger(__name__)
@@ -55,7 +58,27 @@ def _format_results_for_prompt(results: list[RuleResult]) -> str:
     return "\n".join(lines)
 
 
-def explain_results(results: list[RuleResult]) -> str:
+def _extract_text(response) -> str:
+    """
+    Anthropic (and other providers) may return content as a list of content
+    blocks (e.g. [{"type": "text", "text": "..."}]) rather than a plain string.
+    str(list) would produce a Python repr, not usable text — extract properly.
+    """
+    content = response.content
+    if isinstance(content, str):
+        return content
+    if isinstance(content, list):
+        parts = []
+        for block in content:
+            if isinstance(block, dict) and "text" in block:
+                parts.append(block["text"])
+            elif hasattr(block, "text"):
+                parts.append(block.text)
+        return "".join(parts)
+    return str(content)
+
+
+def explain_results(results: list[RuleResult], telemetry: RunTelemetry | None = None) -> str:
     """
     HSN-030: Generate plain-language explanations bound strictly to rule engine output.
     HSN-031: Includes document-gathering guidance per entitlement.
@@ -64,19 +87,23 @@ def explain_results(results: list[RuleResult]) -> str:
     so the tool never blocks on an explanation failure.
     """
     prompt = _format_results_for_prompt(results)
+    callbacks = [TelemetryCallback(telemetry)] if telemetry else []
 
     try:
         llm = get_llm(temperature=0.0)
-        response = llm.invoke([
-            SystemMessage(content=_SYSTEM),
-            HumanMessage(content=f"Entitlement check results:\n\n{prompt}"),
-        ])
-        content = response.content if isinstance(response.content, str) else str(response.content)
+        response = llm.invoke(
+            [
+                SystemMessage(content=_SYSTEM),
+                HumanMessage(content=f"Entitlement check results:\n\n{prompt}"),
+            ],
+            config={"callbacks": callbacks},
+        )
+        content = _extract_text(response)
         if not content.strip():
             raise ValueError("Empty LLM response")
         return content.strip()
     except Exception:
-        logger.warning("explainer: LLM call failed, falling back to template output")
+        logger.warning("explainer: LLM call failed, falling back to template output", exc_info=True)
         return _fallback_template(results)
 
 

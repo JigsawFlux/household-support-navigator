@@ -22,7 +22,7 @@ def get_llm(temperature: float = 0.0):
 
         model = os.environ.get("OLLAMA_MODEL", "llama3.1:8b")
         base_url = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
-        return ChatOllama(model=model, base_url=base_url, temperature=temperature)
+        return ChatOllama(model=model, base_url=base_url, temperature=temperature, timeout=30)
 
     if provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
@@ -33,7 +33,7 @@ def get_llm(temperature: float = 0.0):
                 "ANTHROPIC_API_KEY is required when LLM_PROVIDER=anthropic"
             )
         model = os.environ.get("CLAUDE_MODEL", "claude-sonnet-4-6")
-        return ChatAnthropic(model=model, temperature=temperature, api_key=api_key)
+        return ChatAnthropic(model=model, temperature=temperature, api_key=api_key, timeout=30, max_retries=2)
 
     raise ValueError(
         f"Unsupported LLM_PROVIDER '{provider}'. Use 'anthropic' or 'ollama'."

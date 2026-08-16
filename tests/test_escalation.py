@@ -37,9 +37,9 @@ def test_escalates_large_household():
 def test_escalates_low_confidence_match():
     results = [
         RuleResult(
-            entitlement="Household Support Fund",
+            entitlement="Some Other Scheme",
             eligible=True,
-            reason="Signposted for local check.",
+            reason="Possible match with limited confidence.",
             source_url="https://example.gov.uk",
             confidence="needs_review",
         )
@@ -47,6 +47,22 @@ def test_escalates_low_confidence_match():
     reasons = detect_complex_case(_profile(), results)
     codes = [r.code for r in reasons]
     assert "low_confidence_match" in codes
+
+
+def test_signpost_results_do_not_trigger_low_confidence_escalation():
+    results = [
+        RuleResult(
+            entitlement="Household Support Fund",
+            eligible=False,
+            reason="Local signpost.",
+            source_url="https://example.gov.uk",
+            confidence="needs_review",
+            signpost_only=True,
+        )
+    ]
+    reasons = detect_complex_case(_profile(), results)
+    codes = [r.code for r in reasons]
+    assert "low_confidence_match" not in codes
 
 
 def test_render_escalation_message_empty_when_no_reasons():

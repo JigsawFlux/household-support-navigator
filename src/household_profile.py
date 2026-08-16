@@ -1,6 +1,5 @@
 # src/household_profile.py
 from dataclasses import dataclass, field
-from typing import Optional
 
 
 class ProfileValidationError(ValueError):
@@ -23,14 +22,16 @@ class HouseholdProfile:
     housing_status: str  # "owner" | "renter" | "social_housing" | "other"
     employment_status: str  # "employed" | "self_employed" | "unemployed" | "retired" | "student"
     existing_benefits: list[str] = field(default_factory=list)
+    has_partner: bool = False
+    is_pregnant_or_young_child: bool = False
 
     def __post_init__(self):
         if self.age < 0 or self.age > 120:
             raise ProfileValidationError("Age must be between 0 and 120.")
-        if self.household_size < 1:
-            raise ProfileValidationError("Household size must be at least 1.")
-        if self.annual_income < 0:
-            raise ProfileValidationError("Income cannot be negative.")
+        if self.household_size < 1 or self.household_size > 30:
+            raise ProfileValidationError("Household size must be between 1 and 30.")
+        if self.annual_income < 0 or self.annual_income > 10_000_000:
+            raise ProfileValidationError("Income must be between 0 and 10,000,000.")
         if not self.region:
             raise ProfileValidationError("Region is required.")
         if self.housing_status not in {"owner", "renter", "social_housing", "other"}:

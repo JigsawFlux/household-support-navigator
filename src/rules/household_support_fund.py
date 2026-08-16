@@ -4,7 +4,6 @@ from src.rules.base import RuleResult
 
 _GENERIC_SOURCE_URL = "https://www.gov.uk/cost-of-living/find-help-in-your-area"
 
-# Pilot council index (HSN-090). Start small; expand after pilot validation.
 _PILOT_COUNCIL_LINKS = {
     "manchester": "https://www.manchester.gov.uk/householdsupportfund",
     "birmingham": "https://www.birmingham.gov.uk/householdsupportfund",
@@ -15,14 +14,15 @@ _PILOT_COUNCIL_LINKS = {
 def check_household_support_fund(profile: HouseholdProfile) -> RuleResult:
     """
     Always signposts — never determines eligibility, since Household Support Fund
-    schemes are discretionary and vary council-by-council.
+    schemes are discretionary and vary council-by-council. Marked signpost_only=True
+    so it never triggers the low-confidence-match escalation path.
     """
     region_key = profile.region.strip().lower()
     council_url = _PILOT_COUNCIL_LINKS.get(region_key, _GENERIC_SOURCE_URL)
 
     return RuleResult(
         entitlement="Household Support Fund",
-        eligible=True,  # "eligible to check" — discretionary, not a determination
+        eligible=False,
         reason=(
             "Household Support Fund schemes are run locally and vary by council. "
             "This is a signpost to check current local eligibility and available grants — "
@@ -30,4 +30,5 @@ def check_household_support_fund(profile: HouseholdProfile) -> RuleResult:
         ),
         source_url=council_url,
         confidence="needs_review",
+        signpost_only=True,
     )

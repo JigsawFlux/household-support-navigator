@@ -11,7 +11,6 @@ _QUALIFYING_BENEFITS = {
     "jsa",
     "pension_credit_guarantee",
 }
-_MAX_QUALIFYING_AGE_FOR_PARENT = 45  # loose proxy; real rule is about being pregnant or having a child under 4
 
 
 def check_healthy_start(profile: HouseholdProfile) -> RuleResult:
@@ -28,26 +27,25 @@ def check_healthy_start(profile: HouseholdProfile) -> RuleResult:
             confidence="medium",
         )
 
-    if profile.household_size < 2:
+    if not profile.is_pregnant_or_young_child:
         return RuleResult(
             entitlement="Healthy Start",
             eligible=False,
             reason=(
-                "Healthy Start is for pregnant women or households with children under 4 — "
-                "a single-person household does not typically qualify."
+                "Healthy Start is for pregnant women or households with a child under 4 — "
+                "this was not indicated for this household."
             ),
             source_url=_SOURCE_URL,
-            confidence="low",
+            confidence="medium",
         )
 
     return RuleResult(
         entitlement="Healthy Start",
         eligible=True,
         reason=(
-            "Household reports a qualifying benefit and more than one member — "
-            "if you are pregnant or have a child under 4, you may be eligible. "
-            "Confirm exact eligibility on the official site."
+            "Household reports a qualifying benefit and a pregnancy or child under 4 — "
+            "you are likely eligible. Confirm exact eligibility on the official site."
         ),
         source_url=_SOURCE_URL,
-        confidence="low",
+        confidence="medium",
     )

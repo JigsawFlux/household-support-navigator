@@ -10,12 +10,12 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 0 — Foundation
 
 ### HSN-001 — Project skeleton
-- **Status:** TODO
+- **Status:** DONE
 - **Scope:** `src/`, `tests/`, `configs/`, `data/`, `docs/`
 - **Acceptance:** runnable entrypoint; README run instructions
 
 ### HSN-002 — Config + env contract
-- **Status:** TODO
+- **Status:** DONE
 - **Scope:** thresholds per entitlement, region list, escalation rules
 - **Acceptance:** `.env.example` present; fails fast on missing required vars
 
@@ -24,7 +24,7 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 1 — Data Model
 
 ### HSN-010 — `HouseholdProfile` dataclass
-- **Status:** TODO
+- **Status:** DONE
 - **Fields:** income, age, household_size, region, existing_benefits, housing_status, employment_status
 - **Acceptance:** validation errors are explicit and user-safe
 
@@ -38,28 +38,29 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 2 — Rule Engine (deterministic, not LLM)
 
 ### HSN-020 — Pension Credit rule
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** cites official GOV.UK threshold source; unit tested against known eligible/ineligible cases
 
 ### HSN-021 — Council Tax Reduction rule
-- **Status:** TODO
+- **Status:** DOING
 - **Acceptance:** region-aware; cites source; tested
+- **Note:** Rule implemented with illustrative thresholds; region-aware per-council thresholds not yet done
 
 ### HSN-022 — Warm Home Discount rule
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** cites source; tested
 
 ### HSN-023 — Healthy Start rule
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** cites source; tested
 
 ### HSN-024 — Household Support Fund signposting
-- **Status:** TODO
+- **Status:** DONE
 - **Scope:** per-council link lookup (start with 3–5 pilot councils)
 - **Acceptance:** falls back to generic GOV.UK signpost if council not indexed
 
 ### HSN-025 — Rule engine adapter/interface
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** each rule module returns `{eligible, reason, source_url, confidence}` — stable contract
 
 ---
@@ -67,12 +68,12 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 3 — Explanation Layer (Claude, bounded)
 
 ### HSN-030 — Plain-language explainer tool
-- **Status:** TODO
+- **Status:** DONE
 - **Scope:** Claude explains rule engine output only — never invents eligibility
 - **Acceptance:** explanation always cites the rule's `source_url`; no unsupported claims test
 
 ### HSN-031 — Document-gathering guidance
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** returns checklist of documents per matched entitlement
 
 ---
@@ -80,12 +81,13 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 4 — Escalation & Safety
 
 ### HSN-040 — Complex-case detector
-- **Status:** TODO
+- **Status:** DOING
 - **Scope:** self-employment, multiple households, immigration status, disputed benefit history
+- **Note:** self-employment and large household triggers implemented; immigration status not yet modelled
 - **Acceptance:** always routes to `ESCALATED` with Citizens Advice / MoneyHelper links; never resolved by agent
 
 ### HSN-041 — Escalation output template
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** clear "this needs a human adviser" message; no guessed eligibility given
 
 ---
@@ -93,7 +95,7 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 5 — Output / UX
 
 ### HSN-050 — Prioritized checklist renderer
-- **Status:** TODO
+- **Status:** DONE
 - **Template:** Entitlement → Why you may qualify → Source → Deadline → Next step
 - **Acceptance:** CLI and static HTML both supported; consistent across both
 
@@ -102,11 +104,11 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 6 — Privacy & Data Controls
 
 ### HSN-060 — Session-only storage enforcement
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** no persistence by default; explicit consent flag required for any save
 
 ### HSN-061 — No financial/bank data collection
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** schema validation rejects bank/account-like fields if submitted
 
 ---
@@ -114,12 +116,12 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 7 — Telemetry & Evaluation
 
 ### HSN-070 — Run telemetry
-- **Status:** TODO
+- **Status:** DONE
 - **Track:** latency, rule match counts, escalation rate, entitlement distribution
 - **Acceptance:** one telemetry record per run with `run_id`
 
 ### HSN-071 — Weekly review report
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** exportable report of escalation reasons + rule hit rates for tuning
 
 ---
@@ -127,19 +129,19 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 8 — Test Suite
 
 ### HSN-080 — Rule engine unit tests
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** minimum 3 cases per rule (eligible, ineligible, boundary)
 
 ### HSN-081 — Explanation contract tests
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** every explanation includes source citation; test fails otherwise
 
 ### HSN-082 — Escalation path tests
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** complex-case inputs always escalate, never guessed
 
 ### HSN-083 — Privacy tests
-- **Status:** TODO
+- **Status:** DONE
 - **Acceptance:** bank/account fields rejected; no persistence without consent flag
 
 ---
@@ -147,7 +149,7 @@ Delivery board for v1, aligned to: **Plan → Execute → Adapt → Follow-up** 
 ## Milestone 9 — Pilot Readiness
 
 ### HSN-090 — Pilot council selection (3–5)
-- **Status:** TODO
+- **Status:** DOING
 - **Acceptance:** Household Support Fund data indexed for pilot councils only
 
 ### HSN-091 — Go/No-Go checklist

@@ -53,6 +53,14 @@ def test_persist_raises_for_unknown_session(monkeypatch, tmp_path):
         store.persist_to_disk("does-not-exist", directory=str(tmp_path))
 
 
+def test_persist_rejects_invalid_session_id(monkeypatch, tmp_path):
+    monkeypatch.setenv("HSN_STORAGE_CONSENT", "true")
+    store = SessionStore()
+    store.save("../evil", _profile())
+    with pytest.raises(ValueError):
+        store.persist_to_disk("../evil", directory=str(tmp_path))
+
+
 def test_is_persistence_allowed_reflects_env(monkeypatch):
     monkeypatch.setenv("HSN_STORAGE_CONSENT", "true")
     assert is_persistence_allowed() is True

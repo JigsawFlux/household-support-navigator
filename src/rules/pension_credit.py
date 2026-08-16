@@ -18,7 +18,7 @@ def check_pension_credit(profile: HouseholdProfile) -> RuleResult:
             confidence="high",
         )
 
-    threshold = _COUPLE_INCOME_THRESHOLD if profile.household_size > 1 else _SINGLE_INCOME_THRESHOLD
+    threshold = _COUPLE_INCOME_THRESHOLD if profile.has_partner else _SINGLE_INCOME_THRESHOLD
 
     if profile.annual_income <= threshold:
         return RuleResult(

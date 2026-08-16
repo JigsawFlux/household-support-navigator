@@ -1,16 +1,15 @@
 # src/session_store.py
 """
-HSN-060/061: Session-only storage enforcement.
-
-By default, household profiles and screening results live only in memory for
-the duration of a single run. Persistence to disk requires an explicit,
-separate consent flag — mirroring the privacy posture used in the other
-JigsawFlux MVPs (verification-agent, graduate-career-navigator).
+HSN-060/061: Session-only storage with optional consent-gated persistence.
 """
+from __future__ import annotations
+
 import json
 import logging
 import os
+import re
 import time
+import uuid
 from dataclasses import asdict
 from pathlib import Path
 
@@ -19,14 +18,19 @@ from src.household_profile import HouseholdProfile, reject_if_financial_data_pre
 logger = logging.getLogger(__name__)
 
 _CONSENT_ENV_VAR = "HSN_STORAGE_CONSENT"
+_SESSION_ID_PATTERN = re.compile(r"^[a-zA-Z0-9_-]{1,64}$")
 
 
-class ConsentRequiredError(RuntimeError):
-    """Raised when persistence is attempted without explicit consent."""
+class ConsentRequiredError(PermissionError):
+    """Raised when persistence is attempted without the explicit consent flag."""
 
 
 def is_persistence_allowed() -> bool:
     return os.environ.get(_CONSENT_ENV_VAR, "false").strip().lower() == "true"
+
+
+def new_session_id() -> str:
+    return str(uuid.uuid4())
 
 
 class SessionStore:
@@ -48,10 +52,8 @@ class SessionStore:
         self._profiles.pop(session_id, None)
 
     def persist_to_disk(self, session_id: str, directory: str = "data/sessions") -> str:
-        """
-        Explicit, consent-gated persistence. Raises ConsentRequiredError unless
-        HSN_STORAGE_CONSENT=true is set. Rejects any financial/bank-like fields.
-        """
+        if not _SESSION_ID_PATTERN.match(session_id):
+            raise ValueError("Invalid session_id: must be alphanumeric, dash, or underscore only.")
         if not is_persistence_allowed():
             raise ConsentRequiredError(
                 f"Persistence requires {_CONSENT_ENV_VAR}=true to be set explicitly."

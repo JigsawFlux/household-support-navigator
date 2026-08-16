@@ -7,6 +7,8 @@ entitlement distribution. Each run gets a run_id. Records are appended to an
 in-memory list by default; callers may flush to disk explicitly (respecting
 the same consent gate as session_store.py).
 """
+from __future__ import annotations
+
 import json
 import logging
 import time
@@ -28,11 +30,11 @@ class RunTelemetry:
     started_at: float
     ended_at: float | None = None
     latency_seconds: float | None = None
-    entitlement_counts: dict = field(default_factory=dict)
+    entitlement_counts: dict[str, int] = field(default_factory=dict)
     eligible_count: int = 0
     ineligible_count: int = 0
     escalated: bool = False
-    escalation_reasons: list = field(default_factory=list)
+    escalation_reasons: list[str] = field(default_factory=list)
     llm_calls: int = 0
     llm_errors: int = 0
 
@@ -102,7 +104,7 @@ class TelemetryRecorder:
         HouseholdProfile fields are ever written here).
         """
         Path(directory).mkdir(parents=True, exist_ok=True)
-        file_path = Path(directory) / f"telemetry_{int(time.time())}.json"
+        file_path = Path(directory) / f"telemetry_{uuid.uuid4().hex}.json"
         payload = [asdict(r) for r in self._records]
         with open(file_path, "w") as f:
             json.dump(payload, f, indent=2)
