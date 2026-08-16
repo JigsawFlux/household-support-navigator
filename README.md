@@ -12,17 +12,42 @@ Part of the **JigsawFlux** duty-of-care MVP portfolio, alongside `appointment-gu
 
 ---
 
-## Executive Summary & Context
+## The Problem
 
-DWP and Policy in Practice estimate that **£23 billion in benefits goes unclaimed every year** in the UK. Pension Credit alone is unclaimed by around 800,000 eligible pensioners — many of whom are among the most financially vulnerable households in the country.
+> Full background, survey data, and feasibility analysis: [research.md](research.md)
+
+### Cost of living is the largest untouched public concern in the JigsawFlux portfolio
+
+From the ONS "Public Opinions and Social Trends" survey (June 2026):
+
+| Concern | % of UK adults |
+| --- | --- |
+| **Cost of living** | **88%** — the single largest concern, untouched by any prior JigsawFlux MVP |
+| NHS | 78% |
+| The economy | 70% |
+| Employment | 54% — addressed by Graduate Career Navigator |
+
+### £23 billion in benefits goes unclaimed every year
+
+Policy in Practice and DWP estimates put **unclaimed means-tested benefits at over £23 billion annually** across Pension Credit, Council Tax Reduction, Housing Benefit, and Universal Credit. Pension Credit alone has an estimated **880,000 eligible non-claimants** — each missing out not just on the benefit itself but on a cascade of passported entitlements (Winter Fuel Payment, free TV licence, NHS cost support).
 
 The barriers are not lack of entitlement. They are:
 
-- **Complexity** — overlapping schemes with different thresholds, councils, and qualifying conditions
-- **Trust** — people do not trust AI with money or government decisions ([JigsawFlux research.md](research.md): only 4–5% of surveyed users would trust AI to act autonomously on financial decisions)
-- **Access** — those who most need help are least likely to navigate GOV.UK unaided
+1. **Fragmented discovery** — no single government service surfaces every entitlement a household qualifies for
+2. **Invisible passported benefits** — most claimants don't know that claiming one benefit unlocks several others automatically
+3. **Local scheme opacity** — Household Support Fund and Council Tax discretionary schemes vary by council and are poorly indexed
+4. **Fear and mistrust** — households avoid means-tested claims due to stigma, complexity, or fear of it affecting other benefits (a common but often incorrect assumption)
 
-The **Household Support Navigator** addresses this gap as an advisory-only, radically transparent screening tool. It tells households what they may be entitled to, explains why in plain English, and points them to the official application channel — but it never submits anything, stores financial data, or makes a final eligibility determination.
+### AI trust is at its lowest for financial and government decisions
+
+From the same survey:
+
+- Only **36%** of adults believe AI will personally benefit them; **27% disagree** — nearly double the figure from August 2025
+- Trust in AI for **government decision-making: 4%**
+- Trust in AI for **caregiving: 5%** — the two lowest-trust categories recorded
+- **77%** worry about non-consensual data use
+
+**Implication for this MVP:** any tool touching household finances or government entitlements must be radically transparent, advisory-only, and must never touch bank data or submit claims autonomously — the same governance model applied across all JigsawFlux duty-of-care MVPs.
 
 ---
 
@@ -32,9 +57,9 @@ The **Household Support Navigator** addresses this gap as an advisory-only, radi
 2. **LLM explains, not decides** — Claude rephrases rule engine output in plain, warm language, strictly bounded to the `reason` and `source_url` already computed.
 3. **Mandatory escalation** — self-employed income, large households (5+), and low-confidence matches are always routed to Citizens Advice / MoneyHelper. This path cannot be bypassed.
 4. **No financial data collection** — `reject_if_financial_data_present()` guards every input boundary. Bank account, sort code, IBAN, and card fields are refused at the schema level.
-5. **No persistence without explicit consent** — sessions are in-memory by default. Disk persistence requires `HSN_STORAGE_CONSENT=true` and is still subject to the same financial-data guard.
+5. **No persistence without explicit consent** — sessions are in-memory by default. Disk persistence requires `HSN_STORAGE_CONSENT=true`.
 6. **Deterministic fallback** — if the LLM call fails for any reason, a template-based explanation is generated automatically. The tool never blocks on an LLM failure.
-7. **Signpost-only results** — discretionary local schemes (Household Support Fund) are rendered as signposts, not eligibility determinations, and never trigger the low-confidence escalation path.
+7. **Signpost-only results** — discretionary local schemes (Household Support Fund) are rendered as signposts, not eligibility determinations, and never trigger the escalation path.
 
 ---
 
@@ -42,7 +67,7 @@ The **Household Support Navigator** addresses this gap as an advisory-only, radi
 
 ### Core principle: rule engine decides, LLM explains
 
-```
+```text
 HouseholdProfile → screen_household() → [RuleResult, ...]
                                               │
                         ┌─────────────────────┼─────────────────────┐
@@ -54,12 +79,31 @@ HouseholdProfile → screen_household() → [RuleResult, ...]
                                 render_escalation_message()   render_cli() / render_html()
 ```
 
+### Agentic state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> PROFILE_CAPTURED : Household form submitted
+    PROFILE_CAPTURED --> SCREENED : Rule-based eligibility screening
+    SCREENED --> PRESENTED : Checklist generated for user
+    PRESENTED --> USER_FEEDBACK : User reviews checklist
+    USER_FEEDBACK --> DISMISSED : Not relevant / already claiming
+    USER_FEEDBACK --> IN_PROGRESS : User intends to apply
+    USER_FEEDBACK --> ESCALATED : Complex case flagged to human advice service
+    IN_PROGRESS --> CLAIMED : User confirms application submitted
+```
+
+- **PROFILE_CAPTURED** — income, household size, region, existing benefits (self-reported, session-only, no bank data)
+- **SCREENED** — deterministic rule engine; not LLM-guessed
+- **PRESENTED** — prioritised checklist with rule reasoning and official application links
+- **ESCALATED** — complex cases (self-employment, immigration status, large households) routed to Citizens Advice / MoneyHelper — never resolved by the agent
+
 ### Entitlement rules covered
 
 | Rule module | Entitlement | Trigger |
-|---|---|---|
-| `pension_credit.py` | Pension Credit | Age ≥ 66 + income below guarantee threshold |
-| `council_tax_reduction.py` | Council Tax Reduction | Income below per-household-size band |
+| --- | --- | --- |
+| `pension_credit.py` | Pension Credit | Age ≥ 66 + income ≤ guarantee threshold |
+| `council_tax_reduction.py` | Council Tax Reduction | Income ≤ per-household-size band |
 | `warm_home_discount.py` | Warm Home Discount | Qualifying benefit or low income |
 | `healthy_start.py` | Healthy Start | Qualifying benefit + pregnancy or child under 4 |
 | `household_support_fund.py` | Household Support Fund | Signpost — discretionary, varies by council |
@@ -67,10 +111,24 @@ HouseholdProfile → screen_household() → [RuleResult, ...]
 ### Escalation triggers
 
 | Trigger | Reason |
-|---|---|
+| --- | --- |
 | `self_employed` | Self-employed income cannot be reliably screened by simplified rules |
 | `large_household` | Households of 5+ often qualify for thresholds not modelled here |
 | `low_confidence_match` | Eligible result with `low` or `needs_review` confidence |
+
+---
+
+## Data Sources
+
+| Source | Access | Coverage | Feasibility |
+| --- | --- | --- | --- |
+| **GOV.UK published guidance** | Public, open licence | Pension Credit, CTR, Universal Credit thresholds | **High** — primary rule source; stable and openly licensed |
+| **Turn2us Benefits Calculator** | Partner API | Broad, including grants and charitable funds | **Medium** — strong coverage, needs partnership agreement for production |
+| **entitledto** | Commercial API | Comprehensive, industry-standard | **Medium** — high quality, licensing cost to evaluate post-MVP |
+| **Local authority HSF pages** | Public, per-council HTML | Local grants and discretionary schemes | **Medium** — start with 3–5 pilot councils; requires lightweight normalisation |
+| **MoneyHelper / Citizens Advice** | Public | Signposting and complex case escalation | **High** — safe fallback layer, always available |
+
+*This MVP uses GOV.UK published guidance as its primary rule source. The other sources are candidates for future expansion — see [research.md §4](research.md) for the full feasibility analysis.*
 
 ---
 
@@ -95,19 +153,19 @@ cp .env.example .env
 Edit `.env`:
 
 | Variable | Required | Description |
-|---|---|---|
+| --- | --- | --- |
 | `ANTHROPIC_API_KEY` | Yes (default provider) | [console.anthropic.com](https://console.anthropic.com) |
 | `CLAUDE_MODEL` | No | Override the Claude model. Default: `claude-sonnet-4-6` |
 | `LLM_PROVIDER` | No | `anthropic` (default) or `ollama` |
-| `OLLAMA_MODEL` | Only if Ollama | Model name. Default: `llama3.1:8b` |
-| `OLLAMA_BASE_URL` | Only if Ollama | Default: `http://localhost:11434` |
-| `HSN_STORAGE_CONSENT` | No | Set `true` to enable optional session persistence |
+| `OLLAMA_MODEL` | Ollama only | Model name. Default: `llama3.1:8b` |
+| `OLLAMA_BASE_URL` | Ollama only | Default: `http://localhost:11434` |
+| `HSN_STORAGE_CONSENT` | No | Set `true` to enable optional session persistence to disk |
 
 ### 3. Run tests
 
 ```bash
 pytest -q
-# → 57 passed in <1s
+# 57 passed in <1s
 ```
 
 ---
@@ -116,7 +174,7 @@ pytest -q
 
 ### End-to-end smoke test
 
-`run_e2e.py` exercises the full pipeline for two sample households and saves CLI output, HTML output, and LLM explanations to `data/e2e_output/`:
+`run_e2e.py` exercises the full pipeline for two sample households and writes CLI output, HTML output, and LLM explanations to `data/e2e_output/`:
 
 ```bash
 python3 run_e2e.py
@@ -140,26 +198,23 @@ Running e2e test — model: claude-sonnet-4-6
 Telemetry: telemetry_<uuid>.json
 ```
 
-### Sample CLI checklist output
+### Sample CLI checklist
 
 ```text
 Household Support Navigator — Your Checklist
 ============================================
 
 ✅ You may qualify: Pension Credit
-  Why: Household income (£10,500) is at or below the Pension Credit guarantee threshold (£11,960).
+  Why: Household income (£10,500) is at or below the Pension Credit guarantee
+       threshold (£11,960).
   Confidence: medium
   More info: https://www.gov.uk/pension-credit/eligibility
 
 ✅ You may qualify: Council Tax Reduction
-  Why: Household income (£10,500) is at or below the illustrative CTR threshold (£16,000).
+  Why: Household income (£10,500) is at or below the illustrative CTR
+       threshold (£16,000) for this household size.
   Confidence: medium
   More info: https://www.gov.uk/apply-council-tax-reduction
-
-✅ You may qualify: Warm Home Discount
-  Why: Household reports a qualifying means-tested benefit.
-  Confidence: medium
-  More info: https://www.gov.uk/the-warm-home-discount-scheme
 
 ℹ️ Check locally: Household Support Fund
   More info: https://www.gov.uk/cost-of-living/find-help-in-your-area
@@ -167,36 +222,36 @@ Household Support Navigator — Your Checklist
 
 ---
 
-## Key files
+## Key Files
 
 | File | Role |
-|---|---|
+| --- | --- |
 | `src/household_profile.py` | `HouseholdProfile` dataclass + validation. `reject_if_financial_data_present()` guards all input boundaries. |
 | `src/rules/engine.py` | Registers all rule modules; `screen_household()` runs them deterministically with per-rule fault isolation. |
 | `src/rules/*.py` | One pure function per entitlement returning a frozen `RuleResult`. |
 | `src/explainer.py` | LLM-based plain-language explanation + document checklist. Falls back to a template on LLM failure. |
 | `src/escalation.py` | `detect_complex_case()` — flags self-employment, large households, and low-confidence matches for human-adviser routing. |
-| `src/renderer.py` | `build_checklist()` sorts results (eligible-high-confidence first); `render_cli()` / `render_html()` produce the output. |
+| `src/renderer.py` | `build_checklist()` sorts results (eligible-high-confidence first); `render_cli()` / `render_html()` produce output. |
 | `src/session_store.py` | In-memory by default. `persist_to_disk()` requires `HSN_STORAGE_CONSENT=true` and rejects financial fields. |
 | `shared/llm.py` | LLM factory — `get_llm()` reads `LLM_PROVIDER` and returns the appropriate LangChain chat model. |
-| `shared/telemetry.py` | Tracks `run_id`, latency, entitlement hit counts, and escalation rate. No household-identifying data included. |
+| `shared/telemetry.py` | Tracks `run_id`, latency, entitlement hit counts, and escalation rate per run. |
 
 ---
 
 ## Project Roadmap
 
 | Milestone | Scope | Status |
-|---|---|---|
-| **M0** Foundation | Project skeleton, config contract | **Done** |
-| **M1** Data Model | `HouseholdProfile` dataclass + validation | **Done** |
-| **M2** Rule Engine | Pension Credit, CTR, WHD, Healthy Start, HSF | **Done** |
-| **M3** Explanation Layer | Plain-language LLM explainer + document guidance | **Done** |
-| **M4** Escalation & Safety | Complex-case detector + escalation output | **Done** (immigration status trigger pending) |
-| **M5** Output / UX | CLI + HTML checklist renderer | **Done** |
-| **M6** Privacy & Data Controls | Session-only storage + consent gate | **Done** |
-| **M7** Telemetry | Per-run metrics, weekly review export | **Done** |
-| **M8** Test Suite | Unit + scenario tests (57 passing) | **Done** |
-| **M9 — Pre-pilot** | Verify GOV.UK thresholds · Expand pilot council links · Go/No-Go checklist | **In progress** |
+| --- | --- | --- |
+| **M0** Foundation | Project skeleton, config contract | Done |
+| **M1** Data Model | `HouseholdProfile` dataclass + validation | Done |
+| **M2** Rule Engine | Pension Credit, CTR, WHD, Healthy Start, HSF | Done |
+| **M3** Explanation Layer | Plain-language LLM explainer + document guidance | Done |
+| **M4** Escalation & Safety | Complex-case detector + escalation output | Done (immigration status trigger pending) |
+| **M5** Output / UX | CLI + HTML checklist renderer | Done |
+| **M6** Privacy & Data Controls | Session-only storage + consent gate | Done |
+| **M7** Telemetry | Per-run metrics, weekly review export | Done |
+| **M8** Test Suite | Unit + scenario tests (57 passing) | Done |
+| **M9 — Pre-pilot** | Verify GOV.UK thresholds · Expand pilot council links · Go/No-Go checklist | In progress |
 
 ---
 
@@ -214,12 +269,12 @@ These constraints are structural and must not be removed:
 
 ## Known Pre-Pilot Limitations
 
-Rule thresholds in `src/rules/*.py` are illustrative approximations of GOV.UK guidance, not verified current-year figures. Before any pilot use, reconcile against live GOV.UK/DWP data:
+Rule thresholds in `src/rules/*.py` are illustrative approximations of GOV.UK guidance, not verified current-year figures. Before any pilot use:
 
-- Pension Credit guarantee credit thresholds (`pension_credit.py`)
-- Council Tax Reduction income bands (`council_tax_reduction.py`)
-- Warm Home Discount low-income threshold (`warm_home_discount.py`)
-- Pilot council links in `household_support_fund.py` (currently Manchester, Birmingham, Leeds placeholders only)
+- Reconcile Pension Credit thresholds against current DWP guarantee credit rates (`pension_credit.py`)
+- Reconcile Council Tax Reduction income bands against current per-council guidance (`council_tax_reduction.py`)
+- Reconcile Warm Home Discount low-income threshold (`warm_home_discount.py`)
+- Verify and expand pilot council links in `household_support_fund.py` (currently Manchester, Birmingham, Leeds placeholders only)
 
 ---
 
